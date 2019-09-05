@@ -1,0 +1,44 @@
+[
+    {
+        "definitions": [
+            {
+                "examples": [
+                    "Yet Wayne Rooney scored at a good time, three minutes after the restart, to soothe any gathering nerves and the night can ultimately be chalked off as one of the finest occasions of Hodgson's 17 months in the job."
+                ],
+                "partOfSpeech": "verb",
+                "relatedWords": [
+                    {
+                        "relationshipType": "synonyms",
+                        "words": [
+                            "(humour by agreement or concession): comply, give way; See also Thesaurus:accede"
+                        ]
+                    }
+                ],
+                "text": [
+                    "soothe (third-person singular simple present soothes, present participle soothing, simple past and past participle soothed)",
+                    "(transitive) To restore to ease, comfort, or tranquility; relieve; calm; quiet; refresh.",
+                    "(transitive) To allay; assuage; mitigate; soften.",
+                    "(transitive, rare) To smooth over; render less obnoxious.",
+                    "(transitive) To calm or placate someone or some situation.",
+                    "(transitive) To ease or relieve pain or suffering.",
+                    "(intransitive) To temporise by assent, concession, flattery, or cajolery.",
+                    "(intransitive) To bring comfort or relief.",
+                    "(transitive) To keep in good humour; wheedle; cajole; flatter.",
+                    "(transitive, obsolete) To prove true; verify; confirm as true.",
+                    "(transitive, obsolete) To confirm the statements of; maintain the truthfulness of (a person); bear out.",
+                    "(transitive, obsolete) To assent to; yield to; humour by agreement or concession."
+                ]
+            }
+        ],
+        "etymology": "From Middle English sothen (“to verify, prove the validity of”), from Old English sōþian (“to verify, prove, confirm, bear witness to”), from Proto-Germanic *sanþōną (“to prove, certify, acknowledge, testify”), from Proto-Indo-European *h₁es- (“to be”). Cognate with Danish sande (“to verify”), Swedish sanna (“to verify”), Icelandic sanna (“to verify”), Gothic 𐍃𐌿𐌸𐌾𐌰𐌽 (suþjan), 𐍃𐌿𐌸𐌾𐍉𐌽 (suþjōn, “to soothe”). See also sooth.\n",
+        "pronunciations": {
+            "audio": [
+                "//upload.wikimedia.org/wikipedia/commons/7/7f/En-us-soothe.ogg"
+            ],
+            "text": [
+                "IPA: /suːð/",
+                "Rhymes: -uːð"
+            ]
+        }
+    }
+]

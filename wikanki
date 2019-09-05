@@ -1,0 +1,159 @@
+#!/usr/bin/python3
+import json, requests
+from wiktionaryparser import WiktionaryParser
+import argparse
+import re
+
+#for requests we need to include the procol scheme (http://)
+ankihost = ""
+
+def postToAnki(action, version=6, params=dict()):
+    req = json.dumps({'action': action, 'version': version, 'params':params})
+    #print("req: "+req)
+    #print("req type: "+str(type(req)))
+
+    try:
+        r = requests.post(ankihost, data = req)
+    except requests.exceptions.ConnectionError as error:
+        print("Error trying to connect to Anki. Are you sure Anki is running and the AnkiConnect plugin is installed?")
+        print("AnkiConnect website: https://ankiweb.net/shared/info/2055492159")
+        print("To install AnkiConnect, copy and paste this code into Anki: 2055492159")
+        print(error)
+        exit()
+    except Exception as error:
+        print("Unhandled error whilw trying to connect to Anki")
+        print(error)
+        exit()
+
+    #print(r.text)
+    rj = json.loads(r.text)
+    if (rj['error'] is not None):
+        print("Anki returned an error:",rj['error'])
+    assert('result' in rj)
+    return rj['result']
+
+def getDef(word):
+
+    parser = WiktionaryParser()
+    word_def = parser.fetch(word)
+
+    if len(word_def)==1 and len(word_def[0]['definitions']) == 0:
+        print("Definition not found")
+        return None
+
+    # Write definition to JSON file
+    tow = json.dumps(word_def, indent=4, sort_keys=True, ensure_ascii=False)
+    with open("./data/word_def.json", "w", encoding="utf8") as fh:
+        fh.write(tow)
+
+    def_str = ""
+    etimology_count = 0
+
+    def_str += "<h1>"+word+"</h1>"
+
+    for etimology in word_def:
+        def_str += "<h2>ETIMOLOGY "+str(etimology_count)+"</h2>"
+        definitions = etimology['definitions']
+        for de in definitions:
+
+            pos = de['partOfSpeech']
+            related_words = de['relatedWords']
+            examples = de['examples']
+            text = de['text']
+
+            declination1 = text[0]
+
+            declination2 = re.search("\((.*?)\)", declination1)
+
+            if declination2 is not None:
+                declination = declination2.group(1)
+            else:
+                declination = declination1
+
+            def_str += "<div><h3>" + pos + "</h3>"
+            def_str += "<tt>" + declination + "</tt>"
+
+            def_str += "<ol>"
+            for t in text[1:]:
+                if t != "": #ignore empty strings
+                    def_str += "<li>"+t+"</li>"
+            def_str += "</ol></div>"
+
+        etimology_count += 1
+
+    with open("./data/card.html", "w", encoding="utf-16") as fh:
+        fh.write(def_str)
+
+    return def_str
+
+def getAnkiVersion():
+    return postToAnki('version')
+
+def getAnkiDecks():
+    return postToAnki('deckNames')
+
+def getAnkiModelNames():
+    return postToAnki('modelNames')
+
+def ankiAddNote(front, back, deck, model):
+    params = {
+        "note": {
+            "deckName": deck,
+            "modelName": model,
+            "fields": {
+                "Front": front,
+                "Back": back
+            },
+            "tags": [],
+            #"audio": {
+            #    "url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php",
+            #    "filename": "yom.mp3",
+            #    "skipHash": "7e2c2f954ef6051373ba916f000168dc",
+            #    "fields": [
+            #        "Front"
+            #    ]
+            #}
+        }
+    }
+    return postToAnki('addNote', 6, params)
+
+def main():
+
+    global ankihost
+
+    parser = argparse.ArgumentParser(description='Get definitions from wiktionary and create an Anki card.')
+    parser.add_argument('--ankihost', type=str, help='Hostname Anki is listening to. Protocol (http) must be included.', default="http://127.0.0.1")
+    parser.add_argument('--ankiport', type=str, help='Port Anki is listening to', default="8765")
+    parser.add_argument('word', type=str, help='Word to look for')
+    parser.add_argument('--deck', type=str, help='Deck in which the card is created.', default="Default")
+    parser.add_argument('--model', type=str, help='Model to use for the card.', default="Basic")
+    parser.add_argument('--card-only', action='store_true', help='Get the definition only, without saving to Anki.', default=False)
+
+    args = parser.parse_args()
+
+    ankihost = args.ankihost + ":" + args.ankiport
+
+    word_def = getDef(args.word)
+    if not word_def:
+        print("getDef() returned an error. Exiting")
+        return
+    if args.card_only:
+        print("Skipping adding the card to Anki")
+        exit()
+
+    decks = getAnkiDecks()
+    #print(decks)
+    if(args.deck not in decks):
+        raise Exception("The deck '{}' was not found in your decks. Available decks are:\n{}".format(args.deck, '\n'.join(decks)))
+
+    models = getAnkiModelNames()
+    #print(models)
+    if(args.model not in models):
+        raise Exception("The card model '{}' was not found in your models".format(args.model))
+
+
+    print("Writing defition of word {} in deck {}".format(args.word, args.deck))
+    res = ankiAddNote(args.word, word_def, args.deck, args.model)
+
+if __name__=="__main__":
+    main()
